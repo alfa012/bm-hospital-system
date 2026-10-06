@@ -4,16 +4,756 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BM Hospital - Complete Management System</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <meta http-equiv="refresh" content="0; url=./app.html">
-  <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1e3a5f;color:white;flex-direction:column;gap:16px}
-a{color:#93c5fd}</style>
 </head>
 <body>
-  <h1>BM Hospital Management System</h1>
-  <p>Loading... If not redirected, <a href="app.html">click here</a></p>
-  <p>Or open the multi-file version after uploading all files.</p>
-  <script>location.href='app.html'</script>
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">🏥</div>
+        <h1>BM Hospital</h1>
+        <p>Complete Management System</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>ইউজারনেম</label>
+          <input type="text" id="loginUser" value="admin" required>
+        </div>
+        <div class="form-group">
+          <label>পাসওয়ার্ড</label>
+          <input type="password" id="loginPass" value="admin123" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">লগইন করুন</button>
+      </form>
+      <div class="login-hint">
+        <p><strong>ডেমো লগইন:</strong></p>
+        <p>Admin → admin / admin123</p>
+        <p>Reception → reception / rec123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🏥</div>
+        <div>
+          <h2>BM Hospital</h2>
+          <span id="userRoleBadge" class="role-badge">Admin</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">📊</span> ড্যাশবোর্ড
+        </button>
+        <button class="nav-item" data-page="patients">
+          <span class="nav-icon">👤</span> রোগী
+        </button>
+        <button class="nav-item" data-page="appointments">
+          <span class="nav-icon">📅</span> অ্যাপয়েন্টমেন্ট
+        </button>
+        <button class="nav-item" data-page="doctors">
+          <span class="nav-icon">👨‍⚕️</span> ডাক্তার
+        </button>
+        <button class="nav-item" data-page="prescriptions">
+          <span class="nav-icon">💊</span> প্রেসক্রিপশন
+        </button>
+        <button class="nav-item" data-page="lab">
+          <span class="nav-icon">🔬</span> ল্যাব টেস্ট
+        </button>
+        <button class="nav-item" data-page="billing">
+          <span class="nav-icon">💰</span> বিলিং
+        </button>
+        <button class="nav-item" data-page="feedback">
+          <span class="nav-icon">⭐</span> সার্ভিস ফিডব্যাক
+        </button>
+        <button class="nav-item" data-page="reports">
+          <span class="nav-icon">📈</span> রিপোর্ট
+        </button>
+        <button class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙️</span> সেটিংস
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-logout">🚪 লগআউট</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 id="pageTitle">ড্যাশবোর্ড</h1>
+        </div>
+        <div class="topbar-right">
+          <span id="currentDate" class="current-date"></span>
+          <span id="loggedUser" class="logged-user"></span>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- ========== DASHBOARD ========== -->
+        <section id="dashboard" class="page active">
+          <div class="stats-row">
+            <div class="stat-card c-blue">
+              <div class="stat-icon">👤</div>
+              <div class="stat-info">
+                <span class="stat-label">মোট রোগী</span>
+                <span class="stat-value" id="statPatients">0</span>
+              </div>
+            </div>
+            <div class="stat-card c-green">
+              <div class="stat-icon">📅</div>
+              <div class="stat-info">
+                <span class="stat-label">আজকের অ্যাপয়েন্টমেন্ট</span>
+                <span class="stat-value" id="statTodayAppt">0</span>
+              </div>
+            </div>
+            <div class="stat-card c-orange">
+              <div class="stat-icon">👨‍⚕️</div>
+              <div class="stat-info">
+                <span class="stat-label">ডাক্তার</span>
+                <span class="stat-value" id="statDoctors">0</span>
+              </div>
+            </div>
+            <div class="stat-card c-purple">
+              <div class="stat-icon">💰</div>
+              <div class="stat-info">
+                <span class="stat-label">আজকের আয়</span>
+                <span class="stat-value" id="statRevenue">৳0</span>
+              </div>
+            </div>
+            <div class="stat-card c-teal">
+              <div class="stat-icon">🔬</div>
+              <div class="stat-info">
+                <span class="stat-label">পেন্ডিং ল্যাব</span>
+                <span class="stat-value" id="statLab">0</span>
+              </div>
+            </div>
+            <div class="stat-card c-red">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-info">
+                <span class="stat-label">গড় রেটিং</span>
+                <span class="stat-value" id="statRating">0.0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>সাম্প্রতিক অ্যাপয়েন্টমেন্ট</h3>
+              </div>
+              <div class="card-body" id="dashRecentAppt"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h3>সার্ভিস কোয়ালিটি (SERVQUAL)</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="servqualChart" height="220"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-20">
+            <div class="card-header">
+              <h3>আজকের অ্যাপয়েন্টমেন্ট তালিকা</h3>
+            </div>
+            <div class="card-body" id="dashTodayList"></div>
+          </div>
+        </section>
+
+        <!-- ========== PATIENTS ========== -->
+        <section id="patients" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('patientModal')">+ নতুন রোগী</button>
+            <input type="text" id="patientSearch" class="search-input" placeholder="নাম / মোবাইল / ID খুঁজুন...">
+          </div>
+          <div class="card">
+            <div class="card-body" id="patientTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== APPOINTMENTS ========== -->
+        <section id="appointments" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('appointmentModal')">+ নতুন অ্যাপয়েন্টমেন্ট</button>
+            <select id="apptFilter" class="filter-select">
+              <option value="all">সব</option>
+              <option value="today">আজকের</option>
+              <option value="upcoming">আসন্ন</option>
+              <option value="completed">সম্পন্ন</option>
+              <option value="cancelled">বাতিল</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="card-body" id="appointmentTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== DOCTORS ========== -->
+        <section id="doctors" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('doctorModal')">+ নতুন ডাক্তার</button>
+          </div>
+          <div class="card">
+            <div class="card-body" id="doctorTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== PRESCRIPTIONS ========== -->
+        <section id="prescriptions" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('prescriptionModal')">+ নতুন প্রেসক্রিপশন</button>
+          </div>
+          <div class="card">
+            <div class="card-body" id="prescriptionTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== LAB ========== -->
+        <section id="lab" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('labModal')">+ নতুন ল্যাব টেস্ট</button>
+            <select id="labFilter" class="filter-select">
+              <option value="all">সব</option>
+              <option value="Pending">পেন্ডিং</option>
+              <option value="Completed">সম্পন্ন</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="card-body" id="labTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== BILLING ========== -->
+        <section id="billing" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('billingModal')">+ নতুন বিল</button>
+            <select id="billFilter" class="filter-select">
+              <option value="all">সব</option>
+              <option value="Paid">পরিশোধিত</option>
+              <option value="Pending">বাকি</option>
+              <option value="Partial">আংশিক</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="card-body" id="billingTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== FEEDBACK ========== -->
+        <section id="feedback" class="page">
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal('feedbackModal')">+ নতুন ফিডব্যাক</button>
+          </div>
+          <div class="stats-row" id="feedbackAvgCards"></div>
+          <div class="card mt-20">
+            <div class="card-body" id="feedbackTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== REPORTS ========== -->
+        <section id="reports" class="page">
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header"><h3>মাসিক আয়</h3></div>
+              <div class="card-body"><canvas id="revenueChart" height="200"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>বিভাগ অনুযায়ী অ্যাপয়েন্টমেন্ট</h3></div>
+              <div class="card-body"><canvas id="deptChart" height="200"></canvas></div>
+            </div>
+          </div>
+          <div class="card mt-20">
+            <div class="card-header">
+              <h3>ডেটা এক্সপোর্ট</h3>
+            </div>
+            <div class="card-body export-buttons">
+              <button class="btn btn-outline" onclick="exportData('patients')">📥 রোগী এক্সপোর্ট</button>
+              <button class="btn btn-outline" onclick="exportData('appointments')">📥 অ্যাপয়েন্টমেন্ট এক্সপোর্ট</button>
+              <button class="btn btn-outline" onclick="exportData('bills')">📥 বিল এক্সপোর্ট</button>
+              <button class="btn btn-outline" onclick="exportData('feedbacks')">📥 ফিডব্যাক এক্সপোর্ট</button>
+              <button class="btn btn-outline" onclick="exportAll()">📥 সব ডেটা ব্যাকআপ</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== SETTINGS ========== -->
+        <section id="settings" class="page">
+          <div class="card">
+            <div class="card-header"><h3>হাসপাতাল তথ্য</h3></div>
+            <div class="card-body">
+              <form id="settingsForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>হাসপাতালের নাম</label>
+                    <input type="text" id="setHospitalName" value="BM Hospital and Diagnostic Center">
+                  </div>
+                  <div class="form-group">
+                    <label>ঠিকানা</label>
+                    <input type="text" id="setAddress" value="ঢাকা, বাংলাদেশ">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>ফোন</label>
+                    <input type="text" id="setPhone" value="02-12345678">
+                  </div>
+                  <div class="form-group">
+                    <label>ইমেইল</label>
+                    <input type="email" id="setEmail" value="info@bmhospital.com">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">সংরক্ষণ করুন</button>
+              </form>
+            </div>
+          </div>
+          <div class="card mt-20">
+            <div class="card-header"><h3>ডেটা ম্যানেজমেন্ট</h3></div>
+            <div class="card-body">
+              <button class="btn btn-danger" onclick="clearAllData()">🗑️ সব ডেটা মুছে ফেলুন</button>
+              <p class="text-muted mt-10">সতর্কতা: এটি সব রোগী, অ্যাপয়েন্টমেন্ট, বিল ইত্যাদি মুছে দেবে।</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Patient Modal -->
+  <div id="patientModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="patientModalTitle">নতুন রোগী</h2>
+        <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+      </div>
+      <form id="patientForm">
+        <input type="hidden" id="patientId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>নাম *</label>
+            <input type="text" id="pName" required>
+          </div>
+          <div class="form-group">
+            <label>বয়স *</label>
+            <input type="number" id="pAge" required min="0" max="150">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>লিঙ্গ *</label>
+            <select id="pGender" required>
+              <option value="">নির্বাচন</option>
+              <option value="Male">পুরুষ</option>
+              <option value="Female">মহিলা</option>
+              <option value="Other">অন্যান্য</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>মোবাইল *</label>
+            <input type="tel" id="pPhone" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>রক্তের গ্রুপ</label>
+            <select id="pBlood">
+              <option value="">নির্বাচন</option>
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>জরুরি যোগাযোগ</label>
+            <input type="tel" id="pEmergency">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ঠিকানা</label>
+          <input type="text" id="pAddress">
+        </div>
+        <div class="form-group">
+          <label>মেডিকেল হিস্ট্রি / নোট</label>
+          <textarea id="pHistory" rows="2"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('patientModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">সংরক্ষণ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Appointment Modal -->
+  <div id="appointmentModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>নতুন অ্যাপয়েন্টমেন্ট</h2>
+        <button class="modal-close" onclick="closeModal('appointmentModal')">&times;</button>
+      </div>
+      <form id="appointmentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>রোগী *</label>
+            <select id="aPatient" required></select>
+          </div>
+          <div class="form-group">
+            <label>ডাক্তার *</label>
+            <select id="aDoctor" required></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>তারিখ *</label>
+            <input type="date" id="aDate" required>
+          </div>
+          <div class="form-group">
+            <label>সময় *</label>
+            <input type="time" id="aTime" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>সমস্যা / নোট</label>
+          <textarea id="aNotes" rows="2"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('appointmentModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">বুক করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Doctor Modal -->
+  <div id="doctorModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="doctorModalTitle">নতুন ডাক্তার</h2>
+        <button class="modal-close" onclick="closeModal('doctorModal')">&times;</button>
+      </div>
+      <form id="doctorForm">
+        <input type="hidden" id="doctorId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>নাম *</label>
+            <input type="text" id="dName" required placeholder="ডা. নাম">
+          </div>
+          <div class="form-group">
+            <label>বিভাগ *</label>
+            <select id="dDept" required>
+              <option value="">নির্বাচন</option>
+              <option>Medicine</option><option>Cardiology</option><option>Orthopedics</option>
+              <option>Gynecology</option><option>Pediatrics</option><option>Surgery</option>
+              <option>ENT</option><option>Dermatology</option><option>Neurology</option>
+              <option>Diagnostic</option><option>General</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>মোবাইল</label>
+            <input type="tel" id="dPhone">
+          </div>
+          <div class="form-group">
+            <label>কনসালটেশন ফি (৳) *</label>
+            <input type="number" id="dFee" required min="0" value="500">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>ডিগ্রি</label>
+            <input type="text" id="dDegree" placeholder="MBBS, FCPS">
+          </div>
+          <div class="form-group">
+            <label>অভিজ্ঞতা (বছর)</label>
+            <input type="number" id="dExp" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>চেম্বার সময়</label>
+          <input type="text" id="dSchedule" placeholder="শনি-বৃহঃ 10AM-2PM">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('doctorModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">সংরক্ষণ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Prescription Modal -->
+  <div id="prescriptionModal" class="modal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2>নতুন প্রেসক্রিপশন</h2>
+        <button class="modal-close" onclick="closeModal('prescriptionModal')">&times;</button>
+      </div>
+      <form id="prescriptionForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>রোগী *</label>
+            <select id="rxPatient" required></select>
+          </div>
+          <div class="form-group">
+            <label>ডাক্তার *</label>
+            <select id="rxDoctor" required></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>রোগ নির্ণয় (Diagnosis)</label>
+          <input type="text" id="rxDiagnosis">
+        </div>
+        <div class="form-group">
+          <label>ওষুধসমূহ *</label>
+          <textarea id="rxMedicines" rows="4" required placeholder="1. Napa 500mg - 1+0+1 (৫ দিন)&#10;2. Omeprazole 20mg - 1+0+0 (৭ দিন)"></textarea>
+        </div>
+        <div class="form-group">
+          <label>পরামর্শ / Advice</label>
+          <textarea id="rxAdvice" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>পরবর্তী ভিজিট</label>
+          <input type="date" id="rxFollowUp">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('prescriptionModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">সংরক্ষণ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lab Modal -->
+  <div id="labModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>নতুন ল্যাব টেস্ট</h2>
+        <button class="modal-close" onclick="closeModal('labModal')">&times;</button>
+      </div>
+      <form id="labForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>রোগী *</label>
+            <select id="labPatient" required></select>
+          </div>
+          <div class="form-group">
+            <label>টেস্টের নাম *</label>
+            <select id="labTest" required>
+              <option value="">নির্বাচন</option>
+              <option>Complete Blood Count (CBC)</option>
+              <option>Blood Sugar (FBS/RBS)</option>
+              <option>Lipid Profile</option>
+              <option>Liver Function Test (LFT)</option>
+              <option>Kidney Function Test (KFT)</option>
+              <option>Urine R/E</option>
+              <option>X-Ray Chest</option>
+              <option>Ultrasound Whole Abdomen</option>
+              <option>ECG</option>
+              <option>Thyroid Profile</option>
+              <option>COVID-19 RT-PCR</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>ফি (৳) *</label>
+            <input type="number" id="labFee" required min="0" value="500">
+          </div>
+          <div class="form-group">
+            <label>স্ট্যাটাস</label>
+            <select id="labStatus">
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ফলাফল / নোট</label>
+          <textarea id="labResult" rows="2"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('labModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">সংরক্ষণ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Billing Modal -->
+  <div id="billingModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>নতুন বিল</h2>
+        <button class="modal-close" onclick="closeModal('billingModal')">&times;</button>
+      </div>
+      <form id="billingForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>রোগী *</label>
+            <select id="bPatient" required></select>
+          </div>
+          <div class="form-group">
+            <label>সার্ভিস *</label>
+            <select id="bService" required>
+              <option value="">নির্বাচন</option>
+              <option>Consultation</option>
+              <option>Lab Test</option>
+              <option>X-Ray</option>
+              <option>Ultrasound</option>
+              <option>Admission</option>
+              <option>Surgery</option>
+              <option>Medicine</option>
+              <option>Procedure</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>পরিমাণ (৳) *</label>
+            <input type="number" id="bAmount" required min="0">
+          </div>
+          <div class="form-group">
+            <label>ডিসকাউন্ট (৳)</label>
+            <input type="number" id="bDiscount" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>পেমেন্ট স্ট্যাটাস</label>
+            <select id="bStatus">
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+              <option value="Partial">Partial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>পেমেন্ট মেথড</label>
+            <select id="bMethod">
+              <option>Cash</option>
+              <option>bKash</option>
+              <option>Nagad</option>
+              <option>Card</option>
+              <option>Bank Transfer</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>নোট</label>
+          <input type="text" id="bNotes">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('billingModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">বিল তৈরি</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="modal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2>সার্ভিস কোয়ালিটি ফিডব্যাক (SERVQUAL)</h2>
+        <button class="modal-close" onclick="closeModal('feedbackModal')">&times;</button>
+      </div>
+      <form id="feedbackForm">
+        <div class="form-group">
+          <label>রোগী *</label>
+          <select id="fPatient" required></select>
+        </div>
+        <div class="rating-grid">
+          <div class="rating-item">
+            <label>Tangibility (পরিচ্ছন্নতা, সুবিধা, সরঞ্জাম)</label>
+            <select id="fTangibility">
+              <option value="5">৫ ★★★★★</option>
+              <option value="4">৪ ★★★★</option>
+              <option value="3" selected>৩ ★★★</option>
+              <option value="2">২ ★★</option>
+              <option value="1">১ ★</option>
+            </select>
+          </div>
+          <div class="rating-item">
+            <label>Reliability (সময়মতো ও নির্ভরযোগ্য সেবা)</label>
+            <select id="fReliability">
+              <option value="5">৫ ★★★★★</option>
+              <option value="4">৪ ★★★★</option>
+              <option value="3" selected>৩ ★★★</option>
+              <option value="2">২ ★★</option>
+              <option value="1">১ ★</option>
+            </select>
+          </div>
+          <div class="rating-item">
+            <label>Responsiveness (দ্রুত সাড়া ও সাহায্য)</label>
+            <select id="fResponsiveness">
+              <option value="5">৫ ★★★★★</option>
+              <option value="4">৪ ★★★★</option>
+              <option value="3" selected>৩ ★★★</option>
+              <option value="2">২ ★★</option>
+              <option value="1">১ ★</option>
+            </select>
+          </div>
+          <div class="rating-item">
+            <label>Assurance (দক্ষতা ও বিশ্বাস)</label>
+            <select id="fAssurance">
+              <option value="5">৫ ★★★★★</option>
+              <option value="4">৪ ★★★★</option>
+              <option value="3" selected>৩ ★★★</option>
+              <option value="2">২ ★★</option>
+              <option value="1">১ ★</option>
+            </select>
+          </div>
+          <div class="rating-item">
+            <label>Empathy (সহানুভূতি ও যত্ন)</label>
+            <select id="fEmpathy">
+              <option value="5">৫ ★★★★★</option>
+              <option value="4">৪ ★★★★</option>
+              <option value="3" selected>৩ ★★★</option>
+              <option value="2">২ ★★</option>
+              <option value="1">১ ★</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>মন্তব্য</label>
+          <textarea id="fComment" rows="3"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('feedbackModal')">বাতিল</button>
+          <button type="submit" class="btn btn-primary">জমা দিন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View / Print Modal -->
+  <div id="viewModal" class="modal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 id="viewModalTitle">বিস্তারিত</h2>
+        <button class="modal-close" onclick="closeModal('viewModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="viewModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('viewModal')">বন্ধ</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ প্রিন্ট</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
